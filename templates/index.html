@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Automated-BI Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* ...existing code... */
+      .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.3) 0%,
+          rgba(118, 75, 162, 0.3) 100%
+        );
+        /* transparent gradient, adjust 0.3 for more/less tint */
+        backdrop-filter: none;
+        padding: 20px 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+        box-shadow: none;
+        transition: background 0.3s;
+      }
+      /* ...existing code... */
+
+      /* ...existing code... */
+      .nav-links a {
+        text-decoration: none;
+        color: #1a1a2e; /* Changed to a much darker shade */
+        font-weight: 600;
+        transition: color 0.3s;
+        cursor: pointer;
+      }
+
+      .nav-links a:hover {
+        color: #764ba2; /* Optional: darker purple on hover */
+      }
+
+      .logo {
+        font-size: 1.8em;
+        font-weight: bold;
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #33334d 100%
+        ); /* Darker gradient */
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      /* ...existing code... */
+
+      /* Navigation Bar */
+      /* .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 20px 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      } */
+
+      /* .logo {
+        font-size: 1.8em;
+        font-weight: bold;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      } */
+      .logo img {
+        height: 40px;
+        vertical-align: middle;
+        margin-right: 10px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 30px;
+        list-style: none;
+      }
+
+      /* .nav-links a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        transition: color 0.3s;
+        cursor: pointer;
+      } */
+
+      /* .nav-links a:hover {
+        color: #667eea;
+      } */
+
+      /* Hero Section */
+      .hero {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .floating-shapes {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 20s infinite;
+      }
+
+      .shape:nth-child(1) {
+        width: 80px;
+        height: 80px;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .shape:nth-child(2) {
+        width: 60px;
+        height: 60px;
+        left: 80%;
+        animation-delay: 2s;
+      }
+
+      .shape:nth-child(3) {
+        width: 100px;
+        height: 100px;
+        left: 50%;
+        animation-delay: 4s;
+      }
+
+      .shape:nth-child(4) {
+        width: 50px;
+        height: 50px;
+        left: 30%;
+        animation-delay: 6s;
+      }
+
+      .shape:nth-child(5) {
+        width: 70px;
+        height: 70px;
+        left: 70%;
+        animation-delay: 8s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-100vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      .hero-content {
+        text-align: center;
+        color: white;
+        z-index: 1;
+        padding: 20px;
+      }
+
+      .hero h1 {
+        font-size: 4em;
+        margin-bottom: 20px;
+        animation: slideDown 1s ease-out;
+      }
+
+      .hero p {
+        font-size: 1.5em;
+        margin-bottom: 40px;
+        animation: slideUp 1s ease-out;
+      }
+
+      .cta-button {
+        background: white;
+        color: #667eea;
+        padding: 15px 40px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 1.2em;
+        font-weight: bold;
+        display: inline-block;
+        transition: transform 0.3s, box-shadow 0.3s;
+        animation: pulse 2s infinite;
+        cursor: pointer;
+      }
+
+      .cta-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      /* Upload Section */
+      .upload-section {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 20px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .upload-bg-shapes {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+
+      .bg-circle {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        animation: rotate 30s linear infinite;
+      }
+
+      .bg-circle:nth-child(1) {
+        width: 300px;
+        height: 300px;
+        top: 10%;
+        left: 5%;
+      }
+
+      .bg-circle:nth-child(2) {
+        width: 200px;
+        height: 200px;
+        bottom: 10%;
+        right: 10%;
+        animation-delay: 5s;
+      }
+
+      .bg-circle:nth-child(3) {
+        width: 150px;
+        height: 150px;
+        top: 50%;
+        right: 20%;
+        animation-delay: 10s;
+      }
+
+      @keyframes rotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .upload-container {
+        background: white;
+        padding: 60px;
+        border-radius: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        max-width: 700px;
+        width: 100%;
+        z-index: 1;
+        animation: bounceIn 1s ease-out;
+      }
+
+      @keyframes bounceIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.3);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.05);
+        }
+        70% {
+          transform: scale(0.9);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .upload-container h2 {
+        font-size: 2.5em;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .upload-area {
+        border: 3px dashed #f093fb;
+        border-radius: 20px;
+        padding: 60px;
+        margin: 30px 0;
+        transition: all 0.3s;
+        cursor: pointer;
+        background: linear-gradient(
+          135deg,
+          rgba(240, 147, 251, 0.1) 0%,
+          rgba(245, 87, 108, 0.1) 100%
+        );
+      }
+
+      .upload-area:hover {
+        border-color: #f5576c;
+        background: linear-gradient(
+          135deg,
+          rgba(240, 147, 251, 0.2) 0%,
+          rgba(245, 87, 108, 0.2) 100%
+        );
+        transform: scale(1.02);
+      }
+
+      .upload-icon {
+        font-size: 4em;
+        margin-bottom: 20px;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      .file-input {
+        display: none;
+      }
+
+      .upload-text {
+        font-size: 1.3em;
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      .file-types {
+        color: #999;
+        font-size: 0.9em;
+      }
+
+      .selected-file {
+        margin-top: 20px;
+        padding: 20px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border-radius: 15px;
+        font-size: 1.1em;
+        animation: slideIn 0.5s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* Dashboard Section */
+      .dashboard-section {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        padding: 100px 20px 50px;
+      }
+
+      .dashboard-container {
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+
+      .dashboard-header {
+        text-align: center;
+        color: white;
+        margin-bottom: 50px;
+      }
+
+      .dashboard-header h2 {
+        font-size: 3em;
+        margin-bottom: 10px;
+        animation: fadeIn 1s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-bottom: 50px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        transition: transform 0.3s;
+        animation: slideUp 1s ease-out;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-10px);
+      }
+
+      .stat-value {
+        font-size: 3em;
+        font-weight: bold;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 1.1em;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 30px;
+      }
+
+      .chart-card {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s;
+        animation: zoomIn 1s ease-out;
+      }
+
+      @keyframes zoomIn {
+        from {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .chart-card:hover {
+        transform: scale(1.02);
+      }
+
+      .chart-title {
+        font-size: 1.5em;
+        color: #4facfe;
+        margin-bottom: 20px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      /* Footer */
+      .footer {
+        background: #1a1a2e;
+        color: white;
+        padding: 80px 50px 30px;
+      }
+
+      .footer-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 50px;
+        margin-bottom: 50px;
+      }
+
+      .footer-section h3 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+        color: #4facfe;
+      }
+
+      .footer-section p {
+        line-height: 1.8;
+        color: #ccc;
+        margin-bottom: 15px;
+      }
+
+      .review-card {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+      }
+
+      .review-author {
+        font-weight: bold;
+        color: #4facfe;
+        margin-top: 10px;
+      }
+
+      .faq-item {
+        margin-bottom: 20px;
+      }
+
+      .faq-question {
+        font-weight: bold;
+        color: #4facfe;
+        margin-bottom: 8px;
+      }
+
+      .faq-answer {
+        color: #ccc;
+        line-height: 1.6;
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 30px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: #888;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 15px 20px;
+        }
+
+        .hero h1 {
+          font-size: 2.5em;
+        }
+
+        .charts-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .upload-container {
+          padding: 40px 20px;
+        }
+      }
+
+      /* ...existing code... */
+
+      body.dark-theme .hero {
+        background: linear-gradient(135deg, #23233a 0%, #181824 100%);
+        color: #f1f1f1;
+      }
+
+      body.dark-theme .upload-section {
+        background: linear-gradient(135deg, #23233a 0%, #181824 100%);
+      }
+
+      body.dark-theme .upload-bg-shapes .bg-circle {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      body.dark-theme .upload-container {
+        background: #23233a;
+        color: #f1f1f1;
+      }
+
+      body.dark-theme .upload-area {
+        background: linear-gradient(
+          135deg,
+          rgba(76, 78, 105, 0.2) 0%,
+          rgba(34, 34, 51, 0.2) 100%
+        );
+        border-color: #ffd700;
+      }
+
+      body.dark-theme .selected-file {
+        background: linear-gradient(135deg, #4facfe 0%, #23233a 100%);
+        color: #ffd700;
+      }
+
+      body.dark-theme .dashboard-section {
+        background: linear-gradient(135deg, #181824 0%, #23233a 100%);
+      }
+
+      body.dark-theme .dashboard-header h2,
+      body.dark-theme .dashboard-header p {
+        color: #ffd700;
+      }
+
+      body.dark-theme .stat-card,
+      body.dark-theme .chart-card {
+        background: #23233a;
+        color: #f1f1f1;
+      }
+
+      body.dark-theme .stat-value {
+        background: linear-gradient(135deg, #ffd700 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      body.dark-theme .chart-title {
+        color: #ffd700;
+      }
+
+      body.dark-theme .cta-button {
+        background: #ffd700;
+        color: #23233a;
+      }
+
+      body.dark-theme .footer {
+        background: #181824;
+        color: #f1f1f1;
+      }
+
+      body.dark-theme .footer-section h3 {
+        color: #ffd700;
+      }
+
+      body.dark-theme .footer-section p,
+      body.dark-theme .faq-answer {
+        color: #ccc;
+      }
+
+      body.dark-theme .review-card {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      body.dark-theme .faq-question {
+        color: #ffd700;
+      }
+
+      body.dark-theme .footer-bottom {
+        color: #888;
+      }
+
+      /* ...existing code... */
+
+      /* Light Theme (default) */
+      body {
+        background: #fff;
+        color: #1a1a2e;
+        transition: background 0.3s, color 0.3s;
+      }
+
+      /* Dark Theme */
+      body.dark-theme {
+        background: #181824;
+        color: #f1f1f1;
+      }
+
+      body.dark-theme .navbar {
+        background: linear-gradient(
+          135deg,
+          rgba(34, 34, 51, 0.85) 0%,
+          rgba(76, 78, 105, 0.85) 100%
+        );
+      }
+
+      body.dark-theme .logo {
+        background: linear-gradient(135deg, #f1f1f1 0%, #bdbdbd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      body.dark-theme .nav-links a {
+        color: #f1f1f1;
+      }
+
+      body.dark-theme .nav-links a:hover {
+        color: #ffd700;
+      }
+
+      body.dark-theme .upload-container,
+      body.dark-theme .stat-card,
+      body.dark-theme .chart-card {
+        background: #23233a;
+        color: #f1f1f1;
+      }
+
+      body.dark-theme .upload-area {
+        background: linear-gradient(
+          135deg,
+          rgba(76, 78, 105, 0.2) 0%,
+          rgba(34, 34, 51, 0.2) 100%
+        );
+        border-color: #764ba2;
+      }
+
+      body.dark-theme .footer {
+        background: #23233a;
+        color: #f1f1f1;
+      }
+
+      body.dark-theme .footer-section h3 {
+        color: #ffd700;
+      }
+
+      body.dark-theme .review-card {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      body.dark-theme .faq-question {
+        color: #ffd700;
+      }
+
+      /* ...existing code... */
+      .print-btn {
+        background: #4facfe;
+        color: #fff;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 25px;
+        font-size: 1.1em;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background 0.3s;
+      }
+      .print-btn:hover {
+        background: #764ba2;
+      }
+
+      /* Hide print button when printing */
+      @media print {
+        .print-btn,
+        #themeToggle,
+        .navbar {
+          display: none !important;
+        }
+        body {
+          background: #fff !important;
+          color: #000 !important;
+        }
+        .dashboard-section {
+          background: #fff !important;
+        }
+        .stat-card,
+        .chart-card {
+          background: #fff !important;
+          color: #000 !important;
+          box-shadow: none !important;
+        }
+      }
+      /* ...existing code... */
+
+      @media print {
+        body {
+          background: #181824 !important;
+          color: #f1f1f1 !important;
+        }
+        #dashboard {
+          display: block !important;
+        }
+        body > *:not(#dashboard) {
+          display: none !important;
+        }
+        .dashboard-section {
+          background: linear-gradient(
+            135deg,
+            #181824 0%,
+            #23233a 100%
+          ) !important;
+          color: #f1f1f1 !important;
+          padding: 10px 5px 10px !important;
+          min-height: auto !important;
+        }
+        .dashboard-header {
+          color: #ffd700 !important;
+          margin-bottom: 10px !important;
+          padding: 0 !important;
+        }
+        .stat-card,
+        .chart-card {
+          background: #23233a !important;
+          color: #f1f1f1 !important;
+          box-shadow: none !important;
+          border-radius: 10px !important;
+          padding: 10px !important;
+          font-size: 0.9em !important;
+          margin-bottom: 0 !important;
+        }
+        .charts-grid {
+          gap: 10px !important;
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
+        .chart-title {
+          color: #ffd700 !important;
+          font-size: 1em !important;
+          margin-bottom: 5px !important;
+        }
+        canvas {
+          max-width: 100% !important;
+          max-height: 180px !important;
+          height: 180px !important;
+          width: 100% !important;
+          background: #23233a !important;
+        }
+        .print-btn,
+        #themeToggle,
+        .navbar,
+        .footer,
+        .footer-content,
+        .footer-bottom {
+          display: none !important;
+        }
+        section,
+        div,
+        .dashboard-container {
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+
+    <!-- Dynamic Navigation Bar -->
+    <nav class="navbar">
+      <div class="logo">
+        <img src="logo.jpg" alt="" />Automated-BI Dashboard
+      </div>
+
+      <ul class="nav-links">
+        <li><a onclick="scrollToSection('home')">Home</a></li>
+        <li><a onclick="scrollToSection('upload')">Upload Data</a></li>
+        <li><a onclick="scrollToSection('dashboard')">Dashboard</a></li>
+        <li><a onclick="scrollToSection('footer')">About</a></li>
+      </ul>
+
+      <div
+        style="display: flex; gap: 12px; margin-left: 30px; align-items: center"
+      >
+        {% if session.username %}
+        <!-- Logged-in View -->
+        <span style="font-weight: bold; color: #333"
+          >Hi, {{ session.username }} 👋</span
+        >
+
+        <a
+          href="/logout"
+          style="
+            padding: 8px 18px;
+            background: #ff5252;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: bold;
+          "
+        >
+          Logout
+        </a>
+
+        {% else %}
+        <!-- Guest View -->
+        <a
+          href="/login"
+          style="
+            padding: 8px 18px;
+            background: #4facfe;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: bold;
+          "
+        >
+          Login
+        </a>
+
+        <a
+          href="/signup"
+          style="
+            padding: 8px 18px;
+            background: #764ba2;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: bold;
+          "
+        >
+          Sign Up
+        </a>
+        {% endif %}
+
+        <button
+          id="themeToggle"
+          style="
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: none;
+            background: #eee;
+            color: #222;
+            font-weight: bold;
+            cursor: pointer;
+          "
+        >
+          🌙 Dark
+        </button>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+      <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+      </div>
+      <div class="hero-content">
+        <h1>Transform Data into Insights</h1>
+        <p>Upload, Analyze, and Visualize Your Data in Seconds</p>
+        <a class="cta-button" onclick="scrollToSection('upload')"
+          >Get Started 🚀</a
+        >
+      </div>
+    </section>
+
+    <!-- Upload Section -->
+    <section id="upload" class="upload-section">
+      <div class="upload-bg-shapes">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+      </div>
+
+      <div class="upload-container">
+        <h2>Upload Your Data</h2>
+        <p style="color: #666; font-size: 1.1em">
+          Drag and drop or click to upload
+        </p>
+
+        <form id="uploadForm" enctype="multipart/form-data">
+          <div
+            class="upload-area"
+            onclick="document.getElementById('file-input').click()"
+          >
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">Choose your file</div>
+            <div class="file-types">Supports CSV, Excel (.xlsx, .xls)</div>
+          </div>
+
+          <!-- IMPORTANT FIX -->
+          <input
+            type="file"
+            id="file-input"
+            name="file"
+            class="file-input"
+            accept=".csv,.xlsx,.xls"
+            style="display: none"
+            onchange="uploadFile()"
+          />
+        </form>
+
+        <div id="selectedFile"></div>
+      </div>
+    </section>
+
+    <!-- Dashboard Section -->
+
+    <!-- ...existing code... -->
+
+    <div class="dashboard-header">
+      <!-- <h2>📈 Your Data Dashboard</h2> -->
+      <p>Comprehensive insights at a glance</p>
+      <button class="print-btn" onclick="printDashboard()">
+        🖨️ Print Dashboard
+      </button>
+    </div>
+
+     <section id="dashboard" class="dashboard-section hidden">
+      <div class="dashboard-container">
+        <div class="dashboard-header">
+          <h2>📈 Your Data Dashboard</h2>
+          <p>Comprehensive insights at a glance</p>
+        </div>
+        <div id="statsContainer" class="stats-grid"></div>
+        <div id="chartsContainer" class="charts-grid"></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer" class="footer">
+      <div class="footer-content">
+        <!-- About Us -->
+        <div class="footer-section">
+          <h3>About Us</h3>
+          <p>
+            Automated-BI Dashboard Pro is your ultimate business intelligence
+            solution. We transform complex data into beautiful, actionable
+            insights.
+          </p>
+          <p>
+            Our mission is to make data analysis accessible to everyone,
+            regardless of technical expertise.
+          </p>
+          <p>
+            Founded in 2025, we're passionate about empowering businesses with
+            data-driven decisions.
+          </p>
+        </div>
+
+        <!-- Reviews -->
+        <div class="footer-section">
+          <h3>Customer Reviews</h3>
+          <div class="review-card">
+            <p>
+              "Amazing tool! Transformed how we analyze data. Highly recommend!"
+            </p>
+            <div class="review-author">⭐⭐⭐⭐⭐ - Sarah Johnson</div>
+          </div>
+          <div class="review-card">
+            <p>
+              "Intuitive interface, powerful visualizations. Perfect for our
+              team!"
+            </p>
+            <div class="review-author">⭐⭐⭐⭐⭐ - Mike Chen</div>
+          </div>
+          <div class="review-card">
+            <p>"Saves us hours every week. The best BI tool we've used!"</p>
+            <div class="review-author">⭐⭐⭐⭐⭐ - Emily Rodriguez</div>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="footer-section">
+          <h3>Frequently Asked Questions</h3>
+          <div class="faq-item">
+            <div class="faq-question">Q: What file formats are supported?</div>
+            <div class="faq-answer">
+              A: We support CSV, Excel (.xlsx, .xls) files.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">Q: Is my data secure?</div>
+            <div class="faq-answer">
+              A: Yes! All processing happens in your browser. We never store
+              your data.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">Q: What size files can I upload?</div>
+            <div class="faq-answer">
+              A: Files up to 50MB work best for optimal performance.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">Q: Can I export the visualizations?</div>
+            <div class="faq-answer">
+              A: Yes, you can right-click any chart to save as an image.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>
+          &copy; 2025 Automated-BI Dashboard Pro. All rights reserved. Made with
+          ❤️ for data enthusiasts.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      function uploadFile() {
+        let fileInput = document.getElementById("file-input");
+        let file = fileInput.files[0];
+
+        if (!file) return;
+
+        document.getElementById("selectedFile").innerHTML =
+          "Uploading: <b>" + file.name + "</b>";
+
+        let formData = new FormData();
+        formData.append("file", file);
+
+        fetch("/upload", { method: "POST", body: formData })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.error) {
+              document.getElementById("selectedFile").innerHTML =
+                "<span style='color:red'>Error: " + data.error + "</span>";
+            } else {
+              document.getElementById("selectedFile").innerHTML =
+                "<span style='color:green'>Uploaded: " +
+                data.filename +
+                "</span>";
+            }
+          })
+          .catch((err) => {
+            document.getElementById("selectedFile").innerHTML =
+              "<span style='color:red'>Upload failed</span>";
+          });
+      }
+
+      let chartInstances = [];
+
+      function scrollToSection(sectionId) {
+        const element = document.getElementById(sectionId);
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+
+      document
+        .getElementById("file-input")
+        .addEventListener("change", handleFileUpload);
+
+      function handleFileUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const selectedFileDiv = document.getElementById("selectedFile");
+        selectedFileDiv.innerHTML = `<div class="selected-file">✅ ${file.name} uploaded successfully!</div>`;
+
+        const fileExtension = file.name.split(".").pop().toLowerCase();
+
+        if (fileExtension === "csv") {
+          parseCSV(file);
+        } else if (fileExtension === "xlsx" || fileExtension === "xls") {
+          parseExcel(file);
+        }
+
+        setTimeout(() => {
+          scrollToSection("dashboard");
+        }, 1000);
+      }
+
+      function parseCSV(file) {
+        Papa.parse(file, {
+          header: true,
+          dynamicTyping: true,
+          skipEmptyLines: true,
+          complete: function (results) {
+            processData(results.data);
+          },
+        });
+      }
+
+      function parseExcel(file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+          processData(jsonData);
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      function processData(data) {
+        if (!data || data.length === 0) return;
+
+        document.getElementById("dashboard").classList.remove("hidden");
+
+        chartInstances.forEach((chart) => chart.destroy());
+        chartInstances = [];
+
+        const columns = Object.keys(data[0]);
+        const numericColumns = columns.filter(
+          (col) =>
+            typeof data[0][col] === "number" || !isNaN(parseFloat(data[0][col]))
+        );
+
+        createStatsCards(data, numericColumns);
+
+        const chartsContainer = document.getElementById("chartsContainer");
+        chartsContainer.innerHTML = "";
+
+        if (numericColumns.length > 0) {
+          createBarChart(data, columns[0], numericColumns[0], chartsContainer);
+          createLineChart(data, columns[0], numericColumns[0], chartsContainer);
+
+          if (numericColumns.length > 1) {
+            createPieChart(
+              data,
+              columns[0],
+              numericColumns[0],
+              chartsContainer
+            );
+            createPolarAreaChart(
+              data,
+              columns[0],
+              numericColumns[1], // or numericColumns[0] if you want the same as pie
+              chartsContainer
+            );
+            createDoughnutChart(
+              data,
+              columns[0],
+              numericColumns[1],
+              chartsContainer
+            );
+            createMultiLineChart(
+              data,
+              columns[0],
+              numericColumns,
+              chartsContainer
+            );
+            createAreaChart(
+              data,
+              columns[0],
+              numericColumns[0],
+              chartsContainer
+            );
+          }
+        }
+      }
+
+      function createStatsCards(data, numericColumns) {
+        const statsContainer = document.getElementById("statsContainer");
+        statsContainer.innerHTML = "";
+
+        const totalCard = createStatCard("📊", "Total Records", data.length);
+        statsContainer.appendChild(totalCard);
+
+        numericColumns.slice(0, 3).forEach((col, idx) => {
+          const values = data
+            .map((row) => parseFloat(row[col]))
+            .filter((v) => !isNaN(v));
+          const sum = values.reduce((a, b) => a + b, 0);
+          const avg = sum / values.length;
+          const icons = ["💰", "📈", "⚡"];
+          const card = createStatCard(icons[idx], `Avg ${col}`, avg.toFixed(2));
+          statsContainer.appendChild(card);
+        });
+      }
+
+      function createStatCard(icon, label, value) {
+        const card = document.createElement("div");
+        card.className = "stat-card";
+        card.innerHTML = `
+                <div style="font-size: 2.5em; margin-bottom: 10px;">${icon}</div>
+                <div class="stat-value">${value}</div>
+                <div class="stat-label">${label}</div>
+            `;
+        return card;
+      }
+
+      function createChartCard(title, container) {
+        const card = document.createElement("div");
+        card.className = "chart-card";
+        card.innerHTML = `
+                <div class="chart-title">${title}</div>
+                <canvas></canvas>
+            `;
+        container.appendChild(card);
+        return card.querySelector("canvas");
+      }
+
+      function createBarChart(data, labelCol, valueCol, container) {
+        const canvas = createChartCard(
+          `📊 ${valueCol} by ${labelCol}`,
+          container
+        );
+        const ctx = canvas.getContext("2d");
+
+        const chart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: data.slice(0, 10).map((row) => row[labelCol]),
+            datasets: [
+              {
+                label: valueCol,
+                data: data
+                  .slice(0, 10)
+                  .map((row) => parseFloat(row[valueCol]) || 0),
+                backgroundColor: [
+                  "rgba(255, 99, 132, 0.7)",
+                  "rgba(54, 162, 235, 0.7)",
+                  "rgba(255, 206, 86, 0.7)",
+                  "rgba(75, 192, 192, 0.7)",
+                  "rgba(153, 102, 255, 0.7)",
+                  "rgba(255, 159, 64, 0.7)",
+                  "rgba(199, 199, 199, 0.7)",
+                  "rgba(83, 102, 255, 0.7)",
+                  "rgba(255, 99, 255, 0.7)",
+                  "rgba(99, 255, 132, 0.7)",
+                ],
+                borderWidth: 2,
+                borderColor: "#fff",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { display: false },
+            },
+          },
+        });
+        chartInstances.push(chart);
+      }
+
+      function createLineChart(data, labelCol, valueCol, container) {
+        const canvas = createChartCard(`📈 ${valueCol} Trend`, container);
+        const ctx = canvas.getContext("2d");
+
+        const chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: data.slice(0, 20).map((row) => row[labelCol]),
+            datasets: [
+              {
+                label: valueCol,
+                data: data
+                  .slice(0, 20)
+                  .map((row) => parseFloat(row[valueCol]) || 0),
+                borderColor: "rgba(75, 192, 192, 1)",
+                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+          },
+        });
+        chartInstances.push(chart);
+      }
+
+      function createPieChart(data, labelCol, valueCol, container) {
+        const canvas = createChartCard(
+          `🥧 ${valueCol} Distribution`,
+          container
+        );
+        const ctx = canvas.getContext("2d");
+
+        const colors = [
+          "rgba(255, 99, 132, 0.8)",
+          "rgba(54, 162, 235, 0.8)",
+          "rgba(255, 206, 86, 0.8)",
+          "rgba(75, 192, 192, 0.8)",
+          "rgba(153, 102, 255, 0.8)",
+          "rgba(255, 159, 64, 0.8)",
+        ];
+
+        const chart = new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: data.slice(0, 6).map((row) => row[labelCol]),
+            datasets: [
+              {
+                data: data
+                  .slice(0, 6)
+                  .map((row) => parseFloat(row[valueCol]) || 0),
+                backgroundColor: colors,
+                borderWidth: 3,
+                borderColor: "#fff",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { position: "bottom" },
+            },
+          },
+        });
+        chartInstances.push(chart);
+      }
+
+      function createMultiLineChart(data, labelCol, valueCols, container) {
+        const canvas = createChartCard(`📊 Multi-Metric Comparison`, container);
+        const ctx = canvas.getContext("2d");
+
+        const colors = [
+          "rgba(255, 99, 132, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(255, 206, 86, 1)",
+        ];
+
+        const datasets = valueCols.slice(0, 3).map((col, idx) => ({
+          label: col,
+          data: data.slice(0, 15).map((row) => parseFloat(row[col]) || 0),
+          borderColor: colors[idx],
+          backgroundColor: colors[idx].replace("1)", "0.2)"),
+          borderWidth: 3,
+          fill: false,
+          tension: 0.4,
+        }));
+
+        const chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: data.slice(0, 15).map((row) => row[labelCol]),
+            datasets: datasets,
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { position: "top" },
+            },
+          },
+        });
+        chartInstances.push(chart);
+      }
+
+      function createAreaChart(data, labelCol, valueCol, container) {
+        const canvas = createChartCard(`📉 ${valueCol} Area Chart`, container);
+        const ctx = canvas.getContext("2d");
+
+        const chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: data.slice(0, 20).map((row) => row[labelCol]),
+            datasets: [
+              {
+                label: valueCol,
+                data: data
+                  .slice(0, 20)
+                  .map((row) => parseFloat(row[valueCol]) || 0),
+                backgroundColor: "rgba(153, 102, 255, 0.5)",
+                borderColor: "rgba(153, 102, 255, 1)",
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { display: true },
+            },
+          },
+        });
+        chartInstances.push(chart);
+      }
+
+      // ...existing code...
+      function createPolarAreaChart(data, labelCol, valueCol, container) {
+        const canvas = createChartCard(`🧊 ${valueCol} Polar Area`, container);
+        const ctx = canvas.getContext("2d");
+
+        const colors = [
+          "rgba(255, 99, 132, 0.7)",
+          "rgba(54, 162, 235, 0.7)",
+          "rgba(255, 206, 86, 0.7)",
+          "rgba(75, 192, 192, 0.7)",
+          "rgba(153, 102, 255, 0.7)",
+          "rgba(255, 159, 64, 0.7)",
+        ];
+
+        const chart = new Chart(ctx, {
+          type: "polarArea",
+          data: {
+            labels: data.slice(0, 6).map((row) => row[labelCol]),
+            datasets: [
+              {
+                data: data
+                  .slice(0, 6)
+                  .map((row) => parseFloat(row[valueCol]) || 0),
+                backgroundColor: colors,
+                borderWidth: 2,
+                borderColor: "#fff",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: "bottom" },
+            },
+          },
+        });
+        chartInstances.push(chart);
+      }
+
+      function printDashboard() {
+        // Save current theme
+        const wasDark = document.body.classList.contains("dark-theme");
+        // Force dark theme
+        document.body.classList.add("dark-theme");
+
+        // Hide everything except dashboard
+        const dashboard = document.getElementById("dashboard");
+        const allSections = Array.from(document.body.children);
+        allSections.forEach((el) => {
+          if (el !== dashboard) el.style.display = "none";
+        });
+        dashboard.style.display = "block";
+
+        // Print
+        window.print();
+
+        // Restore everything
+        allSections.forEach((el) => {
+          el.style.display = "";
+        });
+        if (!wasDark) document.body.classList.remove("dark-theme");
+      }
+    </script>
+
+    <script>
+      const themeToggle = document.getElementById("themeToggle");
+      const body = document.body;
+
+      themeToggle.addEventListener("click", () => {
+        body.classList.toggle("dark-theme");
+        if (body.classList.contains("dark-theme")) {
+          themeToggle.textContent = "☀️ Light";
+          themeToggle.style.background = "#23233a";
+          themeToggle.style.color = "#ffd700";
+        } else {
+          themeToggle.textContent = "🌙 Dark";
+          themeToggle.style.background = "#eee";
+          themeToggle.style.color = "#222";
+        }
+      });
+    </script>
+
+    <script>
+      document
+        .querySelector("#file-input")
+        .addEventListener("change", function () {
+          let file = this.files[0];
+          let formData = new FormData();
+          formData.append("file", file);
+
+          fetch("/upload", {
+            method: "POST",
+            body: formData,
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              alert("Uploaded: " + data.filename);
+            });
+        });
+    </script>
+  </body>
+</html>
+3,
+<!-- borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+            chartInstances.push(chart);
+        }
+
+        function createDoughnutChart(data, labelCol, valueCol, container) {
+            const canvas = createChartCard(`🍩 ${valueCol} Breakdown`, container);
+            const ctx = canvas.getContext('2d');
+
+            const colors = [
+                'rgba(255, 99, 255, 0.8)',
+                'rgba(99, 255, 132, 0.8)',
+                'rgba(255, 206, 86, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 159, 64, 0.8)'
+            ];
+
+            const chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.slice(0, 5).map(row => row[labelCol]),
+                    datasets: [{
+                        data: data.slice(0, 5).map(row => parseFloat(row[valueCol]) || 0),
+                        backgroundColor: colors,
+                        borderWidth: -->
